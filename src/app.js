@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import connection from "./database.js";
 import { registerSchema } from "./Schemas/registerSchema.js";
+import { loginSchema } from "./Schemas/loginSchema.js";
 
 const app = express();
 app.use(cors());
@@ -43,6 +44,42 @@ app.post("/sign-up", async (req, res) => {
   } catch (e) {
     res.sendStatus(500);
   }
+});
+
+app.post("/sign-in", async (req, res) => {
+  try {
+    const validation = loginSchema.validate(req.body);
+
+    if (validation.error) {
+      console.log(validation.error);
+      return res.sendStatus(400);
+    }
+    const { email, password } = req.body;
+
+    const result = await connection.query(
+      `
+    SELECT * FROM users
+    WHERE email = $1
+    `,
+      [email]
+    );
+
+    const user = result.rows[0];
+    if (user && bcrypt.compareSync(password, user.password)) {
+      delete user.password;
+      const token = uuid();
+      await connection.query(
+        `
+      INSERT INTO sessions (token, "userId")
+      VALUES ($1, $2)
+      `,
+        [token, user.id]
+      );
+      res.status(200).send({ token, user });
+    } else {
+      res.sendStatus(401);
+    }
+  } catch (e) {}
 });
 
 export default app;
