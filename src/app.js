@@ -11,9 +11,10 @@ app.use(express.json());
 
 app.post("/sign-up", async (req, res) => {
   try {
-    const validation = registerSchema.validate(req.bod);
+    const validation = registerSchema.validate(req.body);
 
     if (validation.error) {
+      console.log(validation.error);
       return res.sendStatus(400);
     }
 
@@ -22,11 +23,10 @@ app.post("/sign-up", async (req, res) => {
     const alreadyInUse = await connection.query(
       `
       SELECT * FROM users
-      WHERE "userName" = $1
-      OR email = $2
-      OR cpf = $3
+      WHERE email = $1
+      OR cpf = $2
       `,
-      [name, email, cpf]
+      [email, cpf]
     );
     if (alreadyInUse.rows[0]) {
       return res.sendStatus(409);
@@ -41,7 +41,6 @@ app.post("/sign-up", async (req, res) => {
     );
     res.sendStatus(201);
   } catch (e) {
-    console.log(e);
     res.sendStatus(500);
   }
 });
