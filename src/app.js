@@ -81,17 +81,16 @@ app.post("/sign-in", async (req, res) => {
       res.sendStatus(401);
     }
   } catch (e) {}
-
 });
 
-app.get("/home", async (req,res) => {
+app.get("/home", async (req, res) => {
   try {
-      const result = await connectionProducts.query(`SELECT * FROM products`);
-      res.send(result.rows);
-  } catch(e) {
-      console.log(e);
-      res.sendStatus(500);
+    const result = await connection.query(`SELECT * FROM products`);
+    res.send(result.rows);
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(500);
   }
-}
+});
 
 export default app;
