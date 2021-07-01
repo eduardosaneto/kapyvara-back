@@ -15,7 +15,7 @@ app.post("/sign-up", async (req, res) => {
     const validation = registerSchema.validate(req.body);
 
     if (validation.error) {
-      console.log(validation.error);
+      //console.log(validation.error);
       return res.sendStatus(400);
     }
 
