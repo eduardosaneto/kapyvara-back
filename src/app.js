@@ -3,6 +3,7 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 import connection from "./database.js";
+import connectionProducts from "./database/databaseProducts.js";
 import { registerSchema } from "./Schemas/registerSchema.js";
 
 const app = express();
@@ -42,6 +43,16 @@ app.post("/sign-up", async (req, res) => {
     res.sendStatus(201);
   } catch (e) {
     res.sendStatus(500);
+  }
+});
+
+app.get("/home", async (req,res) => {
+  try {
+      const result = await connectionProducts.query(`SELECT * FROM products`);
+      res.send(result.rows);
+  } catch(e) {
+      console.log(e);
+      res.sendStatus(500);
   }
 });
 
