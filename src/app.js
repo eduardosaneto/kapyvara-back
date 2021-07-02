@@ -85,6 +85,15 @@ app.post("/sign-in", async (req, res) => {
 
 app.get("/home", async (req, res) => {
   try {
+    const authorization = req.headers["authorization"];
+    if (!authorization) return res.sendStatus(401);
+    const token = authorization.replace("Bearer ", "");
+    const resultToken = await connection.query(
+      `SELECT * FROM sessions
+        WHERE token = $1`,
+      [token]
+    );
+    if (!resultToken.rowCount) return res.sendStatus(404);
     const result = await connection.query(`SELECT * FROM products`);
     res.send(result.rows);
   } catch (e) {
