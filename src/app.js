@@ -93,4 +93,35 @@ app.get("/home", async (req, res) => {
   }
 });
 
+app.post("/sales", async (req, res) => {
+  try {
+    const authorization = req.header("authorization");
+    const token = authorization?.replace("Bearer ", "");
+    const { userId, total, description } = req.body;
+
+    const result = await connection.query(
+      `
+      SELECT * FROM sessions
+      WHERE token = $1 
+    `,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.sendStatus(401);
+    }
+
+    await connection.query(
+      `
+       INSERT INTO sales ("userId", total, description)
+       VALUES ($1, $2, $3)
+       `,
+      [userId, total, description]
+    );
+    res.sendStatus(200);
+  } catch (e) {
+    res.sendStatus(500);
+  }
+});
+
 export default app;
